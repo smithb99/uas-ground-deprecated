@@ -1,3 +1,3 @@
-# Image Analysis 2.0 #
+# Image Analysis 2.0
 
 Hello World!
