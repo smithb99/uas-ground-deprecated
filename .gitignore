@@ -1,1 +1,4 @@
 *.DS_Store
+server/config.yml
+server/images/*
+server/.vscode/
