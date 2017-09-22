@@ -69,29 +69,6 @@ def api_image():
 
 
 
-# PUT /api/trigger/start
-@app.route('/api/trigger/start', methods = { 'PUT' })
-def api_trigger_start():
-    try:
-        return 'start'
-
-    except:
-        return 'Exception caught when attempting request', 400
-
-
-
-# PUT /api/trigger/stop
-@app.route('/api/trigger/stop', methods = { 'PUT' })
-def api_trigger_stop():
-    try:
-        return 'stop'
-
-    except:
-        return 'Exception caught when attempting request', 400
-
-
-
-
 
 
 def allowed_file(filename):
