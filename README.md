@@ -10,6 +10,7 @@ Hello World!
 
 ## Server Migrations
 ---
+When setting up the server for the first time on a new system you will need to run migrations to setup the database. These commands will create the tables required for the server to run. The 5th step is if you need to drop all of the tables for some reason and should only be used in rare cases as this deletes all of the data stored.
 
 1. From the root of the project 
 >`cd server`
