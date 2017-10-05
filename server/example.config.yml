@@ -3,4 +3,4 @@ mysql:
     user: user
     password: password
     db: database
-    port: 3306
+    port: "3306"
