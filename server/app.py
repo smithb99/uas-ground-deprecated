@@ -15,9 +15,9 @@ app = db.app
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
-# GET /api/gui
-@app.route('/api/gui')
-def api_gui():
+# GET /api/image
+@app.route('/api/image')
+def api_gui(id=None):
     try:
         image = Image.query.filter_by(processed=False).first()
         if image is None:
@@ -25,8 +25,6 @@ def api_gui():
         image.processed = True
         db.session.commit()
         return send_from_directory(directory='images', filename=image.image_name)
-    except NoResultFound as error:
-        return "No new images", 204
     except SQLAlchemyError as error:
         print(error)
         return "Exception when retrieving image, check logs", 400
