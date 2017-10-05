@@ -2,3 +2,5 @@
 server/config.yml
 server/images/*
 server/.vscode/
+__pycache__
+server/src
