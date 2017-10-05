@@ -1,22 +1,23 @@
 import os
-from flask import Flask, url_for, request, send_from_directory, json
+from flask import Flask, url_for, request, send_from_directory, json, jsonify
 from werkzeug.utils import secure_filename
-from migrations import db
+from migrations import db, Image
+from sqlalchemy.exc import SQLAlchemyError
 
 
 
 UPLOAD_FOLDER = './images'
 ALLOWED_EXTENSIONS = set(['jpg', 'jpeg'])
 
-app = Flask(__name__)
+app = db.app
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
 
 
 # GET /api/gui
 @app.route('/api/gui')
 def api_gui():
     try:
+        print(Image.query.all())
         #conn = mysql.connect()
         #cursor = conn.cursor()
         #cursor.execute("SELECT * FROM images WHERE processed = 0 LIMIT 1")
@@ -36,24 +37,21 @@ def api_gui():
 @app.route('/api/image', methods = { 'POST' })
 def api_image():
     try:
-        #if 'image' not in request.files:
-        #    return 'No image was included in request', 400
-        #file = request.files['image']
-        #if file.filename == '':
-        #    return 'File name was invalid', 400
-        #if file and allowed_file(file.filename):
-        #    filename = secure_filename(file.filename)
-        #    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        #    conn = mysql.connect()
-        #    cursor = conn.cursor()
-        #    cursor.execute("INSERT INTO images (image_name) values (%s) ", filename)
-        #    data = cursor.fetchall()
-        #    if len(data) is 0:
-        #        conn.commit()
-        #        return 'Successfully uploaded the image'
-        #    return 'Unable to save image in database', 400
+        if 'image' not in request.files:
+            return 'No image was included in request', 400
+        file = request.files['image']
+        if file.filename == '':
+            return 'File name was invalid', 400
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            image = Image(image_name='test', processed=False)
+            db.session.add(image)
+            db.session.commit()
+            return 'Successfully uploaded the image'
         return 'File is invalid or invalid file type', 400
-    except:
+    except SQLAlchemyError as error:
+        print(error)
         return 'Exception while saving image', 400
 
 

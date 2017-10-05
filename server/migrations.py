@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+
 import yaml
 
 with open("config.yml", 'r') as ymlfile:
@@ -30,4 +31,4 @@ class Image(db.Model):
     processed = db.Column(db.Boolean, nullable=False)
 
     def __repr__(self):
-        return '<User %r>' % self.username
+        return '<Image %r>' % self.image_name
