@@ -5,8 +5,7 @@ Hello World!
 
 ## Server Dependencies
 
-> `pip3 install mysql-connector==2.1.4 flask flask_sqlalchemy`
-
+> `pip3 install mysql-connector==2.1.4 flask flask_sqlalchemy Flask-MySQL sqlalchemy werkzeug`
 
 
 ## Server Migrations
