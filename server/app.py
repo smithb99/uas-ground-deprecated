@@ -17,7 +17,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # GET /api/image
 @app.route('/api/image')
-def api_gui():
+def api_get_image():
     try:
         image = Image.query.filter_by(processed=False).first()
         if image is None:
@@ -37,7 +37,7 @@ def api_gui():
 
 # POST /api/image
 @app.route('/api/image', methods = { 'POST' })
-def api_image():
+def api_post_raw_image():
     try:
         if 'image' not in request.files:
             return 'No image was included in request', 400
@@ -47,6 +47,34 @@ def api_image():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            image = Image(image_name=filename, processed=False)
+            db.session.add(image)
+            db.session.commit()
+            return 'Successfully uploaded the image'
+        return 'File is invalid or invalid file type', 400
+    except SQLAlchemyError as error:
+        print(error)
+        return 'Exception while saving image', 400
+    except Exception as error:
+        print(error)
+        return "Unknown issue. Check logs", 400
+
+@app.route('/api/image/cropped', methods = { 'POST' })
+def api_post_processed_image():
+    try:
+        if 'image' not in request.files:
+            return 'No image was included in request', 400
+        data = request.form
+        if(data is None):
+            return 'Request was empty', 400
+        if(data['confirmed'] is None or data['shape'] is None or data['shape_color'] is None or data['letter'] is None or data['letter_color'] is None or data['orientation'] is None):
+            return 'Missing parameter. Required parameters are: confirmed, shape, shape_color, letter, letter_color, orientation'
+        f = request.files['image']
+        if f.filename == '':
+            return 'File name was invalid', 400
+        if f and allowed_file(f.filename):
+            filename = secure_filename(f.filename)
+            f.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             image = Image(image_name=filename, processed=False)
             db.session.add(image)
             db.session.commit()
