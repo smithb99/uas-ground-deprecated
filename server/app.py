@@ -17,7 +17,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 # GET /api/image
 @app.route('/api/image')
-def api_gui(id=None):
+def api_gui():
     try:
         image = Image.query.filter_by(processed=False).first()
         if image is None:
