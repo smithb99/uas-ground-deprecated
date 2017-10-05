@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, json
 from flask_sqlalchemy import SQLAlchemy
 
 import yaml
@@ -31,4 +31,11 @@ class Image(db.Model):
     processed = db.Column(db.Boolean, nullable=False)
 
     def __repr__(self):
-        return '<Image %r>' % self.image_name
+        image = { 'image_name': self.image_name, 'confirmed': self.confirmed, 'shape': self.shape, 
+            'shape_color': self.shape_color, 'letter': self.letter, 'letter_color': self.letter_color,
+            'orientation': self.orientation, 'processed': self.processed }
+        image = json.dumps(image)
+        return image
+    
+    def as_dict(self):
+       return {c.name: getattr(self, c.name) for c in self.__table__.columns}

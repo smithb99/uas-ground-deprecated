@@ -1,8 +1,10 @@
 import os
 from flask import Flask, url_for, request, send_from_directory, json, jsonify
 from werkzeug.utils import secure_filename
+from werkzeug.exceptions import HTTPException, NotFound
 from migrations import db, Image
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm.exc import NoResultFound
 
 
 
@@ -17,20 +19,22 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 @app.route('/api/gui')
 def api_gui():
     try:
-        print(Image.query.all())
-        #conn = mysql.connect()
-        #cursor = conn.cursor()
-        #cursor.execute("SELECT * FROM images WHERE processed = 0 LIMIT 1")
-        #data = cursor.fetchone()
-        #if data is None:
-        #    return "", 204
-        #if data[1]:
-        #    cursor.execute("UPDATE images SET processed = 1 WHERE id = %s", data[0])
-        #    conn.commit()
-        #    return send_from_directory(directory='images', filename=data[1])
-        return "Image name was invalid", 400
-    except:
+        image = Image.query.filter_by(processed=False).first()
+        if image is None:
+            return "No new images", 204
+        image.processed = True
+        db.session.commit()
+        return send_from_directory(directory='images', filename=image.image_name)
+    except NoResultFound as error:
+        return "No new images", 204
+    except SQLAlchemyError as error:
+        print(error)
         return "Exception when retrieving image, check logs", 400
+    except NotFound as error:
+        return "Unable to find image.", 404
+    except Exception as error:
+        print(error)
+        return "Unknown issue. Check logs", 400
 
 
 # POST /api/image
@@ -45,7 +49,7 @@ def api_image():
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            image = Image(image_name='test', processed=False)
+            image = Image(image_name=filename, processed=False)
             db.session.add(image)
             db.session.commit()
             return 'Successfully uploaded the image'
@@ -53,8 +57,12 @@ def api_image():
     except SQLAlchemyError as error:
         print(error)
         return 'Exception while saving image', 400
+    except Exception as error:
+        print(error)
+        return "Unknown issue. Check logs", 400
 
 
+#return jsonify(image.as_dict()), 200
 
 
 
