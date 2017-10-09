@@ -67,6 +67,7 @@ def api_post_processed_image():
         data = request.form
         if(data is None):
             return 'Request was empty', 400
+        #todo capture confirmed correctly
         f = request.files['image']
         if f.filename == '':
             return 'File name was invalid', 400
