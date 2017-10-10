@@ -1,4 +1,4 @@
-from Database.migrations import db
+from Database.initialize import db
 from flask import json
 
 class Image(db.Model):
