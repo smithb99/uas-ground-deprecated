@@ -34,10 +34,21 @@ def hash_password(password):
     return pass_hash.hexdigest() + ":" + salt
 
 
-def login(user, password):
+def login(ip, user, password):
     pass_hash = hash_password(password)
 
-    pass
+    if __config__["Server"].getboolean("RememberLogin"):
+        write_config("Server", "ServerIp", ip)
+        write_config("Server", "ServerUsername", user)
+        write_config("Server", "ServerPassHash", pass_hash)
+        write_config("Server", "ServerPassLen", len(password))
+
+    pass # TODO Send to server for database check
+
+
+def write_config(section, key, value):
+    __config__.set(section, key, value)
+
 
 def main():
     root = tkinter.Tk()
@@ -57,7 +68,7 @@ def main():
 
 if __name__ == "__main__":
     program_path = os.path.dirname(os.path.realpath(__file__))
-    config_path = pathlib.Path(program_path + "auvsi-config.ini")
+    config_path = pathlib.Path(os.path.join(program_path, "auvsi-config.ini"))
 
     if not config_path.exists():
         config = configparser.ConfigParser()
@@ -72,6 +83,7 @@ if __name__ == "__main__":
         }
 
         config["GUI"] = {
+            "Version": __version__,
             "WindowWidth": "",
             "WindowHeight": "",
             "Mode": "WINDOWED"
@@ -81,6 +93,8 @@ if __name__ == "__main__":
             config.write(config_file)
             config_file.close()
     else:
-        __config__ = configparser.ConfigParser().read(config_path)
+        __config__ = configparser.ConfigParser(allow_no_value=True).read(
+            config_path
+        )
 
     main()

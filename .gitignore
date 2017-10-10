@@ -69,7 +69,8 @@ target/
 
 # PyCharm stuff:
 .idea
-gui/auvsi-config.ini
+auvsi-config.ini
+*.png
 
 # Jupyter Notebook
 .ipynb_checkpoints
