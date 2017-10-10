@@ -2,9 +2,10 @@ import os
 from flask import Flask, url_for, request, send_from_directory, json, jsonify
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import HTTPException, NotFound
-from migrations import db, Image
+from migrations import db, Image, Cropped
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
+import uuid
 
 
 
@@ -24,6 +25,27 @@ def api_get_image():
             return "No new images", 204
         image.processed = True
         db.session.commit()
+        return jsonify(image.as_dict()), 200
+    except SQLAlchemyError as error:
+        print(error)
+        return "Exception when retrieving image, check logs", 400
+    except NotFound as error:
+        return "Unable to find image.", 404
+    except Exception as error:
+        print(error)
+        return "Unknown issue. Check logs", 400
+
+
+# GET /api/image/<int:id>
+@app.route('/api/image/<int:id>')
+def api_get_image_by_id(id):
+    try:
+        image = Image.query.filter_by(id=id).first()
+        if image is None:
+            return "Unable to find image by id", 404
+        image.processed = True
+        db.session.commit()
+        print(image.image_name)
         return send_from_directory(directory='images', filename=image.image_name)
     except SQLAlchemyError as error:
         print(error)
@@ -45,7 +67,7 @@ def api_post_raw_image():
         if file.filename == '':
             return 'File name was invalid', 400
         if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
+            filename = secure_filename(str(uuid.uuid4().hex) + ".jpeg")
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             image = Image(image_name=filename, processed=False)
             db.session.add(image)
@@ -59,11 +81,14 @@ def api_post_raw_image():
         print(error)
         return "Unknown issue. Check logs", 400
 
+
 @app.route('/api/image/cropped', methods = { 'POST' })
 def api_post_processed_image():
     try:
         if 'image' not in request.files:
             return 'No image was included in request', 400
+        if 'original_id' not in request.form:
+            return 'Missing original_id', 400
         data = request.form
         if(data is None):
             return 'Request was empty', 400
@@ -72,12 +97,13 @@ def api_post_processed_image():
         if f.filename == '':
             return 'File name was invalid', 400
         if f and allowed_file(f.filename):
-            filename = secure_filename(f.filename)
+            filename = secure_filename(str(uuid.uuid4().hex) + ".jpeg")
             f.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            image = Image(image_name=filename, processed=True, confirmed=data['confirmed'], shape=data['shape'], 
-                            shape_color=data['shape_color'], letter=data['letter'], letter_color=data['letter_color'], 
-                            orientation=data['orientation'])
-            db.session.add(image)
+            #process lat/long here
+            cropped = Cropped(image_name=filename, has_odlc=data['has_odlc'], shape=data['shape'], 
+                            background_color=data['background_color'], alphanumeric=data['alphanumeric'], alphanumeric_color=data['alphanumeric_color'], 
+                            orientation=data['orientation'], original_id=data['original_id'])
+            db.session.add(cropped)
             db.session.commit()
             #todo: submit image for judging
             return 'Successfully uploaded the image'
