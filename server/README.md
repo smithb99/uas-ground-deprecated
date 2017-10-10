@@ -52,7 +52,7 @@ The server is designed in a modular way to make additions easy. In the server fo
 
 ## Run the Server
 ---
-To run the server locally to testing run the following command
+To run the server locally to test you can run the following command
 >`python3 app.py`
 
 To run the server in production you should follow this guide [here](https://www.digitalocean.com/community/tutorials/how-to-serve-flask-applications-with-uwsgi-and-nginx-on-ubuntu-16-04). However if you're in a hurry and need to get something up you can open up `app.py` and modify the following code.
