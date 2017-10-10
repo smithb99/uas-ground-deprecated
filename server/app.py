@@ -2,7 +2,9 @@ import os
 from flask import Flask, url_for, request, send_from_directory, json, jsonify
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import HTTPException, NotFound
-from migrations import db, Image, Cropped
+from Database.migrations import db
+from Models.Cropped import Cropped
+from Models.Image import Image
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm.exc import NoResultFound
 import uuid
@@ -42,19 +44,22 @@ def api_get_image_by_id(id):
     try:
         image = Image.query.filter_by(id=id).first()
         if image is None:
-            return "Unable to find image by id", 404
+            return "Unable to find image by id: %d" % id, 404
         image.processed = True
         db.session.commit()
         print(image.image_name)
-        return send_from_directory(directory='images', filename=image.image_name)
+        root_dir = os.path.dirname(os.getcwd())
+        return send_from_directory(os.path.join(root_dir, 'server', 'images'), image.image_name)
     except SQLAlchemyError as error:
         print(error)
         return "Exception when retrieving image, check logs", 400
     except NotFound as error:
+        print(error)
         return "Unable to find image.", 404
     except Exception as error:
         print(error)
         return "Unknown issue. Check logs", 400
+
 
 
 # POST /api/image
@@ -63,12 +68,12 @@ def api_post_raw_image():
     try:
         if 'image' not in request.files:
             return 'No image was included in request', 400
-        file = request.files['image']
-        if file.filename == '':
+        f = request.files['image']
+        if f.filename == '':
             return 'File name was invalid', 400
-        if file and allowed_file(file.filename):
-            filename = secure_filename(str(uuid.uuid4().hex) + ".jpeg")
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        if f and allowed_file(f.filename):
+            filename = str(uuid.uuid4().hex) + ".jpeg"
+            f.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             image = Image(image_name=filename, processed=False)
             db.session.add(image)
             db.session.commit()

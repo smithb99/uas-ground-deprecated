@@ -18,4 +18,3 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 from Models import Image, Cropped
-
