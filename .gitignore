@@ -69,6 +69,7 @@ target/
 
 # PyCharm stuff:
 .idea
+gui/auvsi-config.ini
 
 # Jupyter Notebook
 .ipynb_checkpoints
@@ -103,3 +104,4 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
