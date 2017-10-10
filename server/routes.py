@@ -1,9 +1,4 @@
-import os
-from flask import jsonify, request, send_from_directory
-from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.orm.exc import NoResultFound
-from werkzeug.exceptions import HTTPException, NotFound
-import uuid
+from flask import request
 
 from Database.initialize import app
 from Models.Cropped import Cropped

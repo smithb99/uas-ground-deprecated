@@ -41,7 +41,6 @@ def get_image_by_id(id):
             return "Unable to find image by id: %d" % id, 404
         image.processed = True
         db.session.commit()
-        print(image.image_name)
         root_dir = os.path.dirname(os.getcwd())
         return send_from_directory(os.path.join(root_dir, 'server', 'images'), image.image_name)
     except SQLAlchemyError as error:
@@ -95,12 +94,16 @@ def post_processed_image(request):
             filename = str(uuid.uuid4().hex) + ".jpeg"
             f.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             #process lat/long here
-            cropped = Cropped(image_name=filename, has_odlc=data['has_odlc'], shape=data['shape'], 
-                            background_color=data['background_color'], alphanumeric=data['alphanumeric'], alphanumeric_color=data['alphanumeric_color'], 
-                            orientation=data['orientation'], original_id=data['original_id'])
-            db.session.add(cropped)
-            db.session.commit()
-            #todo: submit image for judging
+            if data['has_odlc'] == '1':
+                cropped = Cropped(image_name=filename, has_odlc=1, shape=data['shape'], 
+                                background_color=data['background_color'], alphanumeric=data['alphanumeric'], alphanumeric_color=data['alphanumeric_color'], 
+                                orientation=data['orientation'], original_id=data['original_id'])
+                db.session.add(cropped)
+                #todo: submit image for judging
+            else:
+                cropped = Cropped(image_name=filename, has_odlc=0, original_id=data['original_id'])
+                db.session.add(cropped)
+            db.session.commit()  
             return 'Successfully uploaded the image'
         return 'File is invalid or invalid file type', 400
     except SQLAlchemyError as error:
