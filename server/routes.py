@@ -1,8 +1,6 @@
 from flask import request
 
 from Database.initialize import app
-from Models.Cropped import Cropped
-from Models.Image import Image
 from Controllers import ImageController
 
 
