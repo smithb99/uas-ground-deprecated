@@ -2,7 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask import Flask
 import yaml
 
-with open("../config.yml", 'r') as ymlfile:
+with open("config.yml", 'r') as ymlfile:
     cfg = yaml.load(ymlfile)
 
 username = cfg['mysql']['user']
@@ -16,3 +16,6 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://' + username +':
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+
+from Models import Image, Cropped
+

@@ -1,3 +1,3 @@
-from migrations import db
+from Database.migrations import db
 
 db.create_all()

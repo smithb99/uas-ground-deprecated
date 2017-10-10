@@ -1,39 +1,6 @@
-from flask import Flask, json
-from flask_sqlalchemy import SQLAlchemy
-
-import yaml
-
-with open("config.yml", 'r') as ymlfile:
-    cfg = yaml.load(ymlfile)
-
-username = cfg['mysql']['user']
-password = cfg['mysql']['password']
-database = cfg['mysql']['db']
-host = cfg['mysql']['host']
-port = cfg['mysql']['port']
-
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://' + username +':' + password + '@' + host + ':' + port + '/' + database
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-db = SQLAlchemy(app)
-
-
-class Image(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    image_name = db.Column(db.String(50), nullable=False)
-    processed = db.Column(db.Boolean, nullable=False)
-
-
-    def __repr__(self):
-        image = { 'id': self.id, 'image_name': self.image_name, 'processed': self.processed }
-        image = json.dumps(image)
-        return image
-    
-    def as_dict(self):
-       return {c.name: getattr(self, c.name) for c in self.__table__.columns}
-
-
+from Database.migrations import db
+from Models.Image import Image
+from flask import json
 
 class Cropped(db.Model):
     id = db.Column(db.Integer, primary_key=True)
