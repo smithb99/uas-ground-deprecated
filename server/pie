@@ -22,8 +22,6 @@ def router():
 
 
 
-
-
 def getargs(argv):
     opts = []
     while argv:
@@ -31,10 +29,5 @@ def getargs(argv):
             opts.append(argv[0])
         argv = argv[1:]
     return opts
-
-
-
-
-
 
 router()
