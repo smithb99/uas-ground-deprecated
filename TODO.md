@@ -9,9 +9,9 @@
 
 ## Version 2.0.0
 ### Remote
-- [ ] Triggers Camera #5
-- [ ] Retrieves Images #6
-- [ ] Sends Images to Server #7
+- [X] Triggers Camera #5
+- [X] Retrieves Images #6
+- [X] Sends Images to Server #7
 
 ### Server
 - [ ] Receives Images from Remote #10
