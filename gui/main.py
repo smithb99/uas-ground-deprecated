@@ -94,6 +94,7 @@ def main():
     root = tkinter.Tk()
 
     root.title("Kansas State University UAS Client")
+    root.geometry("{}x{}".format(str(width), str(height)))
 
     global image
     image = Image.open(
