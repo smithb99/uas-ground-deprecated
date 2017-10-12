@@ -16,7 +16,7 @@ Attributes:
     program_path: A reference to the current execution directory
 
 Todo:
-    156: Stop hard-coding the window height and width and get the monitor size.
+    157: Stop hard-coding the window height and width and get the monitor size.
 
 Author:
     Braedon Smith <bhsmith1999@gmail.com>

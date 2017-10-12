@@ -5,8 +5,8 @@ This module provides the code associated with the server connection GUI and some
 backend connection code, such as a login handler and uplink manager.
 
 Todo:
-    33: Minor issue - Handle logins
-    77: Send to server for database check
+    40: Minor issue - Handle logins
+    84: Send to server for database check
 
 Author:
     Braedon Smith <bhsmith1999@gmail.com>
