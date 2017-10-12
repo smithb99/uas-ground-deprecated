@@ -1,0 +1,33 @@
+from sys import argv
+from Database.migrations import db
+
+
+def router():
+    args = getargs(argv)
+    arg = args[1]
+    if arg == 'migrate':
+        arg = args[2]
+        if arg == 'create':
+            print('Running migrations. Creating tables...')
+            db.create_all()
+        elif arg == 'drop':
+            print('Running migrations. Dropping tables...')
+            db.drop_all()
+        else:
+            print('Invalid/Missing migration command.')
+    else:
+        print('Invalid command.')
+
+
+
+
+
+def getargs(argv):
+    opts = []
+    while argv:
+        if argv[0]:
+            opts.append(argv[0])
+        argv = argv[1:]
+    return opts
+
+router()
