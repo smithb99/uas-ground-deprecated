@@ -16,7 +16,7 @@ Attributes:
     program_path: A reference to the current execution directory
 
 Todo:
-    147: Stop hardcoding the window height and width and get the monitor size.
+    156: Stop hard-coding the window height and width and get the monitor size.
 
 Author:
     Braedon Smith <bhsmith1999@gmail.com>
@@ -26,7 +26,12 @@ import configparser
 import os
 import pathlib
 import random
+
 import tkinter
+import tkinter.font
+import tkinter.ttk
+
+import gui.server
 
 from PIL import Image, ImageTk
 
@@ -34,14 +39,10 @@ __version__ = "2.0.0"
 __config__ = None
 
 root = None
+label = None
+image = None
+
 program_path = os.path.dirname(os.path.realpath(__file__))
-
-
-def stop():
-    """
-    stop(): Stops the window and exits the program.
-    """
-    root.destroy()
 
 
 def read_config(section, key):
@@ -55,24 +56,16 @@ def read_config(section, key):
     Returns:
         The value of the specified key
     """
+
     return __config__.get(section, key)
 
 
-def resize_image(image, width):
+def stop():
     """
-    resize_image():  Resizes an image using PIL.  Will maintain the original
-    picture's aspect ratio.
-
-    image:  the image to be resized
-    width:  the new width of the image
-
-    Returns:
-         The resized image
+    stop(): Stops the window and exits the program.
     """
-    width_percent = (width / float(image.size[0]))
-    h_size = int((float(image.size[1]) * float(width_percent)))
 
-    return image.resize((width, h_size), Image.ANTIALIAS)
+    root.destroy()
 
 
 def write_config(section, key, value):
@@ -83,46 +76,62 @@ def write_config(section, key, value):
     key:  The key of the new value
     value:  The value to assign to the key
     """
+
     __config__.set(section, key, value)
+    __config__.set("GUI", "Version", __version__)
 
 
 def main():
     """
     main():  Program entry point
     """
-    mode = __config__.getboolean("GUI", "Fullscreen")
-    width = read_config("GUI", "WindowWidth")
-    height = read_config("GUI", "WindowHeight")
+
+    # mode = __config__.getboolean("GUI", "Fullscreen")
+    width = __config__.getint("GUI", "WindowWidth")
+    height = __config__.getint("GUI", "WindowHeight")
 
     global root
     root = tkinter.Tk()
 
     root.title("Kansas State University UAS Client")
 
+    global image
     image = Image.open(
         os.path.join(program_path, "assets", "ksu" + str(random.randint(1, 2)) +
                      ".png")
     )
 
-    if mode:
-        root.attributes("-fullscreen", True)
-        image = resize_image(image, root.winfo_screenwidth())
-    else:
-        root.attributes("-fullscreen", False)
-        image = resize_image(image, width)
+    # if mode:
+    #     root.attributes("-fullscreen", True)
+    #     image = resize_image(image, root.winfo_screenwidth())
+    # else:
+    #     root.attributes("-fullscreen", False)
+    #     image = resize_image(image, width)
 
     photo = ImageTk.PhotoImage(image)
 
+    global label
     label = tkinter.Label(root, width=width, height=height, image=photo,
                           anchor=tkinter.NW)
 
-    label.pack(fill=tkinter.BOTH, expand=tkinter.YES)
+    # label.bind("<Configure>", on_configure)
+    label.pack(fill=tkinter.BOTH, expand=tkinter.YES, side=tkinter.BOTTOM)
 
-    server_button = tkinter.Button(label, text="Connect to Server")
-    exit_button = tkinter.Button(label, text="Exit", command=stop)
+    tkinter.ttk.Style().configure("home.TButton", font=tkinter.font.Font(
+        family="Helvetica", size=36, weight=tkinter.font.BOLD
+    ))
 
-    server_button.grid(row=0, sticky=tkinter.SW)
-    exit_button.grid(row=1, sticky=tkinter.SW)
+    server_button = tkinter.ttk.Button(label, text="Connect to Server",
+                                       style="home.TButton",
+                                       command=lambda: gui.server.
+                                       login_screen(root))
+
+    exit_button = tkinter.ttk.Button(label, text="Exit", style="home.TButton",
+                                     command=stop)
+
+    exit_button.pack(anchor=tkinter.SW, side=tkinter.BOTTOM, padx=100, pady=50)
+
+    server_button.pack(anchor=tkinter.SW, side=tkinter.BOTTOM, padx=100)
 
     root.mainloop()
 
@@ -134,7 +143,7 @@ if __name__ == "__main__":
         config = configparser.ConfigParser()
 
         config["Server"] = {
-            "ServerIp": "",
+            "ServerHostname": "",
             "ServerUsername": "",
             "ServerPassHash": "",
             "ServerPassLen": "",
@@ -144,7 +153,7 @@ if __name__ == "__main__":
 
         config["GUI"] = {
             "Version": __version__,
-            "WindowWidth": "960",  # TODO stop hardcoding
+            "WindowWidth": "960",  # TODO stop hard-coding
             "WindowHeight": "540",
             "Fullscreen": "true"
         }

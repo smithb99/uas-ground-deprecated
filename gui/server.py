@@ -19,6 +19,13 @@ import uuid
 from .main import read_config, write_config, __config__
 
 
+def create_window(self):
+    root = tkinter.Toplevel(self)
+    root.wm_title("Window #%s" % self.counter)
+    label = tkinter.Label(root)
+    label.pack(side="top", fill="both", expand=True, padx=100, pady=100)
+
+
 def hash_password(password):
     """
     hash_password(): Takes a password string and salts and hashes it to preserve
@@ -53,12 +60,12 @@ def hash_password(password):
     return pass_hash.hexdigest() + ":" + salt
 
 
-def login(ip_address, user, password):
+def login(hostname, user, password):
     """
     login(str, str, str):  Logs the user into the server
 
     Args:
-        ip_address: The textual representation of the server IP address
+        hostname: The textual representation of the server IP address
         user: The username to be accessed
         password: The password for the username
 
@@ -69,7 +76,7 @@ def login(ip_address, user, password):
     pass_hash = hash_password(password)
 
     if __config__["Server"].getboolean("RememberLogin"):
-        write_config("Server", "ServerIp", ip_address)
+        write_config("Server", "ServerHostname", hostname)
         write_config("Server", "ServerUsername", user)
         write_config("Server", "ServerPassHash", pass_hash)
         write_config("Server", "ServerPassLen", len(password))
@@ -77,10 +84,10 @@ def login(ip_address, user, password):
     pass  # TODO Send to server for database check
 
 
-def login_screen():
+def login_screen(self):
     """
     login_screen(): Provides the GUI for handling login credentials.
     """
-    connect = tkinter.Tk()
 
-    connect.mainloop()
+    root = tkinter.Toplevel(self)
+    root.title("Log In")
