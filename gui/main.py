@@ -31,6 +31,7 @@ import tkinter
 import tkinter.font
 import tkinter.ttk
 
+import gui.connect
 import gui.server
 
 from PIL import Image, ImageTk
