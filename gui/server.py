@@ -1,12 +1,7 @@
 """
 server.py
 
-This module provides the code associated with the server connection GUI and some
-backend connection code, such as a login handler and uplink manager.
-
-Todo:
-    40: Minor issue - Handle logins
-    84: Send to server for database check
+This module provides the code associated with the server connection GUI.
 
 Author:
     Braedon Smith <bhsmith1999@gmail.com>
