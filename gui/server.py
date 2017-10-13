@@ -14,6 +14,7 @@ Author:
 
 import tkinter
 
+from .connect import connect_screen
 from .main import read_config, write_config, __config__
 
 
@@ -56,7 +57,11 @@ def login_screen(self):
     password_label = tkinter.Label(root, text="Password: ")
     password_entry = tkinter.Entry(root, show="*")
 
-    submit_button = tkinter.Button(root, text="Log In")
+    submit_button = tkinter.Button(root, text="Log In", command=lambda:
+                                   connect_screen(self, hostname_entry.get(),
+                                                  username_entry.get(),
+                                                  password_entry.get()))
+
     remember_me = tkinter.Checkbutton(root, text="Remember me on this computer")
 
     hostname_label.grid(row=0, column=0, pady=5)
