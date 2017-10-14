@@ -12,12 +12,13 @@ Todo:
 """
 
 import json
-import requests
 import tkinter
 
 from io import BytesIO
 from PIL import Image
 from requests.auth import HTTPDigestAuth
+
+import requests
 
 
 class ConnectManager:
@@ -49,11 +50,15 @@ class ConnectManager:
         status = tkinter.Text(root)
         response = None
 
+        headers = {
+            'cache-control': "no-cache",
+            'postman-token': "afe3920c-eb2e-f9e7-9293-660ca9bc801e"
+        }
+
         try:
-            response = requests.get(self.hostname,
+            response = requests.get(self.hostname, headers=headers,
                                     auth=HTTPDigestAuth(self.username,
                                                         self.password))
-
         except requests.exceptions.MissingSchema:
             pass  # TODO error popup
 
@@ -67,13 +72,20 @@ class ConnectManager:
         Returns: the image from the server
         """
 
-        response_json = json.loads(requests.get(self.hostname + "/api/image").json())
+        response_json = json.loads(requests.get(self.hostname + "/api/image")
+                                   .json())
         # TODO handle exception
 
         image_id = response_json["id"]
 
+        headers = {
+            'cache-control': "no-cache",
+            'postman-token': "afe3920c-eb2e-f9e7-9293-660ca9bc801e"
+        }
+
         return Image.open(BytesIO(requests.get(self.hostname + "/api/image/" +
-                                               image_id).content))
+                                               image_id, headers=headers)
+                                  .content))
 
     def image_screen(self):
         """
@@ -82,17 +94,27 @@ class ConnectManager:
 
         pass
 
-    def post_image(self, hostname, username, password, image):
+    def post_image(self, images):
         """
-        post_image(str, str, str, PIL.Image[]): Posts an array of cropped images
+        post_image(str, str, str, PIL.Image{}): Posts an array of cropped images
                                                 to the server.
 
         Args:
-            hostname: The fully qualified URI of the server
-            username: The username of the user on the server
-            password: The password for the user
+            images: A dictionary of images and JSON data to post to the server
 
         Returns: The HTTP response code
         """
 
-        pass
+        for image in images:
+            image_json = json.loads(images[image])
+
+            if bool(int(image_json["has_odlc"])):
+                new_json = '{"has_odlc":%d,"original_id":%d,"shape":%s,' +\
+                           '"background_color":%s,"alphanumeric":%s,' +\
+                           '"alphanumeric_color":%s,"orientation":%s}'
+            else:
+                new_json = '{"has_odlc": %d, "original_id": %d}' % (
+                    image_json["has_odlc"], image_json["id"])
+
+            requests.post(self.hostname, auth=(self.username, self.password),
+                          json=new_json, data=image)
