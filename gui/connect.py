@@ -8,14 +8,11 @@ Author:
     Braedon Smith <bhsmith1999@gmail.com>
 
 Todo:
-    56: Handle an error with a popup message
+    61: Handle an error when HTTP returns something other than 200
 """
 
-import json
 import tkinter
 
-from io import BytesIO
-from PIL import Image
 from requests.auth import HTTPDigestAuth
 
 import requests
@@ -65,56 +62,9 @@ class ConnectManager:
         if response.status_code == 200:
             status.insert(0, self.hostname + " responded with HTTP 200 (OK).")
 
-    def get_image(self):
-        """
-        get_image(): Pops an image from the queue on the server.
-
-        Returns: the image from the server
-        """
-
-        response_json = json.loads(requests.get(self.hostname + "/api/image")
-                                   .json())
-        # TODO handle exception
-
-        image_id = response_json["id"]
-
-        headers = {
-            'cache-control': "no-cache",
-            'postman-token': "afe3920c-eb2e-f9e7-9293-660ca9bc801e"
-        }
-
-        return Image.open(BytesIO(requests.get(self.hostname + "/api/image/" +
-                                               image_id, headers=headers)
-                                  .content))
-
     def image_screen(self):
         """
         image_screen(): Handles code for displaying the image editing screen.
         """
 
         pass
-
-    def post_image(self, images):
-        """
-        post_image(str, str, str, PIL.Image{}): Posts an array of cropped images
-                                                to the server.
-
-        Args:
-            images: A dictionary of images and JSON data to post to the server
-
-        Returns: The HTTP response code
-        """
-
-        for image in images:
-            image_json = json.loads(images[image])
-
-            if bool(int(image_json["has_odlc"])):
-                new_json = '{"has_odlc":%d,"original_id":%d,"shape":%s,' +\
-                           '"background_color":%s,"alphanumeric":%s,' +\
-                           '"alphanumeric_color":%s,"orientation":%s}'
-            else:
-                new_json = '{"has_odlc": %d, "original_id": %d}' % (
-                    image_json["has_odlc"], image_json["id"])
-
-            requests.post(self.hostname, auth=(self.username, self.password),
-                          json=new_json, data=image)
