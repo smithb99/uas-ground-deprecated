@@ -11,6 +11,7 @@ Todo:
     56: Handle an error with a popup message
 """
 
+import json
 import requests
 import tkinter
 
@@ -57,7 +58,7 @@ class ConnectManager:
             pass  # TODO error popup
 
         if response.status_code == 200:
-            pass
+            status.insert(0, self.hostname + " responded with HTTP 200 (OK).")
 
     def get_image(self):
         """
@@ -66,7 +67,13 @@ class ConnectManager:
         Returns: the image from the server
         """
 
-        pass
+        response_json = json.loads(requests.get(self.hostname + "/api/image").json())
+        # TODO handle exception
+
+        image_id = response_json["id"]
+
+        return Image.open(BytesIO(requests.get(self.hostname + "/api/image/" +
+                                               image_id).content))
 
     def image_screen(self):
         """
