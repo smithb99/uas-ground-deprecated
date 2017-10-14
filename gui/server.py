@@ -22,27 +22,36 @@ class ServerManager:
         functions.
     """
 
-    def __init__(self, root, config):
+    def __init__(self, root, config, config_path):
         self.__config__ = config
         self.lower = root
+        self.config_path = config_path
 
-    def connect_screen(self, hostname, user, password):
+    def connect_screen(self, config, hostname, user, password, is_checked):
         """
-        connect_screen(str, str, str):  Creates the connection status screen
-                                        object
+        connect_screen(str, str, str, tkinter.BooleanVar):  Creates the
+                                                            connection status
+                                                            screen object
 
         Args:
+            config: The path to the configuration file
             hostname: The fully qualified hostname of the target server.
             user: The user on the target server.
             password:  The password for the above user.
+            is_checked:  Whether the remember me checkbutton is checked
         """
 
+        if is_checked.get():
+            write_config(self.__config__, config, "Server", "RememberLogin",
+                         "true")
+
         if self.__config__["Server"].getboolean("RememberLogin"):
-            write_config(self.__config__, "Server", "ServerHostname", hostname)
-            write_config(self.__config__, "Server", "ServerUsername", user)
-            write_config(self.__config__, "Server", "ServerPassword", password)
-            write_config(self.__config__, "Server", "ServerPassLen",
-                         len(password))
+            write_config(self.__config__, config, "Server", "ServerHostname",
+                         hostname)
+            write_config(self.__config__, config, "Server", "ServerUsername",
+                         user)
+            write_config(self.__config__, config, "Server", "ServerPassword",
+                         password)
 
         connect_manager = ConnectManager(self.lower, hostname, user, password)
         connect_manager.connect_screen()
@@ -64,15 +73,30 @@ class ServerManager:
         password_label = tkinter.Label(root, text="Password: ")
         password_entry = tkinter.Entry(root, show="*")
 
+        if self.__config__.getboolean("Server", "RememberLogin"):
+            hostname_entry.insert(0,
+                                  self.__config__["Server"]["ServerHostname"])
+
+            username_entry.insert(0,
+                                  self.__config__["Server"]["ServerUsername"])
+
+            password_entry.insert(0,
+                                  self.__config__["Server"]["ServerPassword"])
+
+        is_checked = tkinter.BooleanVar()
+        remember_me = tkinter.Checkbutton(root, variable=is_checked,
+                                          text="Remember me on this computer")
+
+        if self.__config__["Server"].getboolean("RememberLogin"):
+            remember_me.select()
+
         submit_button = tkinter.Button(root, text="Log In", command=lambda:
                                        self.connect_screen(
+                                           self.config_path,
                                            hostname_entry.get(),
                                            username_entry.get(),
-                                           password_entry.get())
+                                           password_entry.get(), is_checked)
                                        )
-
-        remember_me = tkinter.Checkbutton(root,
-                                          text="Remember me on this computer")
 
         hostname_label.grid(row=0, column=0, pady=5)
         hostname_entry.grid(row=0, column=1, pady=5)

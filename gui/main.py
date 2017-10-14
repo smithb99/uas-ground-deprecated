@@ -52,7 +52,8 @@ class Main:
         login_screen():  Creates the server login screen object
         """
 
-        server_manager = gui.server.ServerManager(self.root, self.config)
+        server_manager = gui.server.ServerManager(self.root, self.config,
+                                                  CONFIG_PATH)
         server_manager.login_screen()
 
     def stop(self):
@@ -132,7 +133,7 @@ def read_config(config_handle, section, key):
     return config_handle.get(section, key)
 
 
-def write_config(config_handle, section, key, value):
+def write_config(config_handle, config_path, section, key, value):
     """
     write_config(configparser.ConfigParser, str, str, str):  Writes a change to
                                                              a configuration
@@ -141,6 +142,7 @@ def write_config(config_handle, section, key, value):
     Args:
         config_handle:  The ConfigParser responsible for the specific INI file
                         being written to
+        config_path:  The path to the file being written to
         section:  The section of the new value
         key:  The key of the new value
         value:  The value to assign to the key
@@ -148,6 +150,9 @@ def write_config(config_handle, section, key, value):
 
     config_handle.set(section, key, value)
     config_handle.set("GUI", "Version", gui.metadata.__version__)
+
+    with open(config_path, "w") as conf:
+        config_handle.write(conf)
 
 
 if __name__ == "__main__":
@@ -161,10 +166,8 @@ if __name__ == "__main__":
         CONFIG["Server"] = {
             "ServerHostname": "",
             "ServerUsername": "",
-            "ServerPassHash": "",
-            "ServerPassLen": "",
+            "ServerPassword": "",
             "RememberLogin": "false",
-            "HashAlgorithm": "sha512"
         }
 
         CONFIG["GUI"] = {
