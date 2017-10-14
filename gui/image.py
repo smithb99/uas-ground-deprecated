@@ -74,13 +74,5 @@ class ImageHandler:
         for image in images:
             image_json = json.loads(images[image])
 
-            if bool(int(image_json["has_odlc"])):
-                new_json = '{"has_odlc":%d,"original_id":%d,"shape":%s,' +\
-                           '"background_color":%s,"alphanumeric":%s,' +\
-                           '"alphanumeric_color":%s,"orientation":%s}'
-            else:
-                new_json = '{"has_odlc": %d, "original_id": %d}' % (
-                    image_json["has_odlc"], image_json["id"])
-
             requests.post(self.hostname, auth=(self.username, self.password),
-                          json=new_json, data=image)
+                          json=image_json, data=image)
