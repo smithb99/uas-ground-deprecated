@@ -9,64 +9,79 @@ Author:
 
 import tkinter
 
-from .connect import connect_screen
-from .main import read_config, write_config, __config__
+from .connect import ConnectManager
+from .main import write_config
 
 
-def login(hostname, user, password):
+class ServerManager:
     """
-    login(str, str, str):  Logs the user into the server
+    Class ServerManager:
 
-    Args:
-        hostname: The textual representation of the server IP address
-        user: The username to be accessed
-        password: The password for the username
-
-    Returns:
-         TODO
+    Description:
+        Handles the code for displaying the server GUI screen and associated
+        functions.
     """
 
-    if __config__["Server"].getboolean("RememberLogin"):
-        write_config("Server", "ServerHostname", hostname)
-        write_config("Server", "ServerUsername", user)
-        write_config("Server", "ServerPassword", password)
-        write_config("Server", "ServerPassLen", len(password))
+    def __init__(self, root, config):
+        self.__config__ = config
+        self.lower = root
 
-    pass  # TODO Send to server for database check
+    def connect_screen(self, hostname, user, password):
+        """
+        connect_screen(str, str, str):  Creates the connection status screen
+                                        object
 
+        Args:
+            hostname: The fully qualified hostname of the target server.
+            user: The user on the target server.
+            password:  The password for the above user.
+        """
 
-def login_screen(self):
-    """
-    login_screen(): Provides the GUI for handling login credentials.
-    """
+        if self.__config__["Server"].getboolean("RememberLogin"):
+            write_config(self.__config__, "Server", "ServerHostname", hostname)
+            write_config(self.__config__, "Server", "ServerUsername", user)
+            write_config(self.__config__, "Server", "ServerPassword", password)
+            write_config(self.__config__, "Server", "ServerPassLen",
+                         len(password))
 
-    root = tkinter.Toplevel(self)
-    root.title("Log In")
+        connect_manager = ConnectManager(self.lower, hostname, user, password)
+        connect_manager.connect_screen()
 
-    hostname_label = tkinter.Label(root, text="Hostname: ")
-    hostname_entry = tkinter.Entry(root)
+    def login_screen(self):
+        """
+        login_screen(): Provides the GUI for handling login credentials.
+        """
 
-    username_label = tkinter.Label(root, text="Username: ")
-    username_entry = tkinter.Entry(root)
+        root = tkinter.Toplevel(self.lower)
+        root.title("Log In")
 
-    password_label = tkinter.Label(root, text="Password: ")
-    password_entry = tkinter.Entry(root, show="*")
+        hostname_label = tkinter.Label(root, text="Hostname: ")
+        hostname_entry = tkinter.Entry(root)
 
-    submit_button = tkinter.Button(root, text="Log In", command=lambda:
-                                   connect_screen(self, hostname_entry.get(),
-                                                  username_entry.get(),
-                                                  password_entry.get()))
+        username_label = tkinter.Label(root, text="Username: ")
+        username_entry = tkinter.Entry(root)
 
-    remember_me = tkinter.Checkbutton(root, text="Remember me on this computer")
+        password_label = tkinter.Label(root, text="Password: ")
+        password_entry = tkinter.Entry(root, show="*")
 
-    hostname_label.grid(row=0, column=0, pady=5)
-    hostname_entry.grid(row=0, column=1, pady=5)
+        submit_button = tkinter.Button(root, text="Log In", command=lambda:
+                                       self.connect_screen(
+                                           hostname_entry.get(),
+                                           username_entry.get(),
+                                           password_entry.get())
+                                       )
 
-    username_label.grid(row=1, column=0, pady=5)
-    username_entry.grid(row=1, column=1, pady=5)
+        remember_me = tkinter.Checkbutton(root,
+                                          text="Remember me on this computer")
 
-    password_label.grid(row=2, column=0, pady=5)
-    password_entry.grid(row=2, column=1, pady=5)
+        hostname_label.grid(row=0, column=0, pady=5)
+        hostname_entry.grid(row=0, column=1, pady=5)
 
-    submit_button.grid(row=3, column=0, pady=10)
-    remember_me.grid(row=3, column=1, pady=10)
+        username_label.grid(row=1, column=0, pady=5)
+        username_entry.grid(row=1, column=1, pady=5)
+
+        password_label.grid(row=2, column=0, pady=5)
+        password_entry.grid(row=2, column=1, pady=5)
+
+        submit_button.grid(row=3, column=0, pady=10)
+        remember_me.grid(row=3, column=1, pady=10)
