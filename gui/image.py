@@ -8,11 +8,12 @@ Author:
     Braedon Smith <bhsmith1999@gmail.com>
 
 Todo:
-    50: Handle error when JSON is formatted incorrectly
+    108: Handle error when JSON is formatted incorrectly
 """
 
 import json
 import tkinter
+import tkinter.messagebox
 
 from io import BytesIO
 from PIL import Image
@@ -28,8 +29,9 @@ class ImageHandler:
         Handles code for getting, cropping, and posting images.
     """
 
-    def __init__(self, root, hostname, username, password):
+    def __init__(self, root, config, hostname, username, password):
         self.lower = root
+        self.config = config
         self.hostname = hostname
         self.username = username
         self.password = password
@@ -41,6 +43,23 @@ class ImageHandler:
         root = tkinter.Toplevel(self.lower)
         root.title("Crop Image")
 
+        pop_button = tkinter.Button(root)
+        submit_button = tkinter.Button(root)
+        exit_button = tkinter.Button(root, command=self.stop())
+
+        image_canvas = tkinter.Canvas(root)
+
+        root.geometry("{}x{}".format(
+            str(self.config.getint("GUI", "WindowWidth")),
+            str(self.config.getint("GUI", "WindowHeight")))
+        )
+
+        pop_button.grid(row=0, column=0)
+        submit_button.grid(row=1, column=0)
+        exit_button.grid(row=2, column=0)
+
+        image_canvas.grid(row=0, column=1)
+
     def get_image(self):
         """
         get_image(): Pops an image from the queue on the server.
@@ -48,9 +67,15 @@ class ImageHandler:
         Returns: the image from the server
         """
 
-        response_json = json.loads(requests.get(self.hostname + "/api/image")
-                                   .json())
-        # TODO handle exception
+        response = requests.get(self.hostname + "/api/image",
+                                auth=(self.username, self.password))
+
+        response_json = json.loads(response.json())
+
+        if response.status_code != 200:
+            tkinter.messagebox.showinfo("Error connecting to server",
+                                        "Failed to connect. Host responded " +
+                                        "with code " + response.status_code)
 
         image_id = response_json["id"]
 
@@ -79,3 +104,10 @@ class ImageHandler:
 
             requests.post(self.hostname, auth=(self.username, self.password),
                           json=image_json, data=image)
+
+            # TODO handle errors when JSON is formatted incorrectly
+
+    def stop(self):
+        """
+        stop():  Cleanly exits the application.
+        """

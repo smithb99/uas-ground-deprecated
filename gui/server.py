@@ -53,7 +53,8 @@ class ServerManager:
             write_config(self.__config__, config, "Server", "ServerPassword",
                          password)
 
-        connect_manager = ConnectManager(self.lower, hostname, user, password)
+        connect_manager = ConnectManager(self.lower, config, hostname, user,
+                                         password)
         connect_manager.connect_screen()
 
     def login_screen(self):

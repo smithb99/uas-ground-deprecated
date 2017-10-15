@@ -45,6 +45,12 @@ class Main:
         self.program_path = path
 
         self.root = tkinter.Tk()
+        width = self.root.winfo_screenwidth()
+        height = self.root.winfo_screenheight()
+
+        write_config(config_handle, CONFIG_PATH, "GUI", "WindowWidth", width)
+        write_config(config_handle, CONFIG_PATH, "GUI", "WindowHeight", height)
+
         self.main()
 
     def login_screen(self):
@@ -172,8 +178,8 @@ if __name__ == "__main__":
 
         CONFIG["GUI"] = {
             "Version": gui.metadata.__version__,
-            "WindowWidth": "960",  # TODO stop hard-coding
-            "WindowHeight": "540",
+            "WindowWidth": "",
+            "WindowHeight": "",
             "Fullscreen": "true"
         }
 

@@ -6,9 +6,6 @@ backend connection code, such as the login handler and uplink manager.
 
 Author:
     Braedon Smith <bhsmith1999@gmail.com>
-
-Todo:
-    61: Handle an error when HTTP returns something other than 200
 """
 
 import tkinter
@@ -29,11 +26,12 @@ class ConnectManager:
         associated functions.
     """
 
-    def __init__(self, root, hostname, username, password):
+    def __init__(self, root, config, hostname, username, password):
         self.hostname = hostname
         self.username = username
         self.password = password
         self.lower = root
+        self.config = config
 
     def connect_screen(self):
         """
@@ -73,7 +71,7 @@ class ConnectManager:
         image_screen(): Handles code for launching the image editing screen.
         """
 
-        image_manager = ImageHandler(self.lower, self.hostname, self.username,
+        image_manager = ImageHandler(self.lower, self.config, self.hostname, self.username,
                                      self.password)
 
         image_manager.image_screen()
