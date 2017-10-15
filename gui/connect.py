@@ -37,7 +37,7 @@ class ConnectManager:
         self.lower = root
         self.config = config
 
-        self.root = tkinter.Toplevel(self.lower)
+        self.root = tkinter.Toplevel(self.lower, name="connectionConsole")
 
     def connect_screen(self):
         """

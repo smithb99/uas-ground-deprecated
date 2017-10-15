@@ -27,7 +27,7 @@ class ServerManager:
         self.lower = root
         self.config_path = config_path
 
-        self.root = tkinter.Toplevel(self.lower)
+        self.root = tkinter.Toplevel(self.lower, name="serverManager")
 
     def connect_screen(self, config_path, hostname, user, password, is_checked):
         """

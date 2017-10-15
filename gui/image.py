@@ -40,7 +40,7 @@ class ImageHandler:
         self.username = username
         self.password = password
 
-        self.root = tkinter.Toplevel(self.lower)
+        self.root = tkinter.Toplevel(self.lower, name="imageHandler")
         self.canvas = tkinter.Canvas(self.root)
 
     def image_screen(self):
@@ -48,12 +48,14 @@ class ImageHandler:
         image_screen():  Handles GUI code for the image processing screen
         """
 
-        self.root.title("Crop Image")
+        self.root.title("Image Cropper")
 
-        pop_button = tkinter.Button(self.root, text="New Image")
+        pop_button = tkinter.Button(self.root, text="New Image",
+                                    command=self.pop)
+
         submit_button = tkinter.Button(self.root, text="Submit Image")
-        exit_button = tkinter.Button(self.root, text="Exit",
-                                     command=self.stop())
+        exit_button = tkinter.Button(self.root, text="Disconnect",
+                                     command=self.disconnect)
 
         self.root.geometry("{}x{}".format(
             read_config(self.config, "GUI", "WindowWidth"),
@@ -62,8 +64,7 @@ class ImageHandler:
 
         # root.grid_columnconfigure(1, minsize=) TODO minimum size - resolution
 
-        pop_button.grid(row=0, column=0, padx=40, pady=10, sticky=tkinter.W,
-                        command=self.pop)
+        pop_button.grid(row=0, column=0, padx=40, pady=10, sticky=tkinter.W)
         submit_button.grid(row=1, column=0, padx=40, pady=10, sticky=tkinter.W)
         exit_button.grid(row=2, column=0, padx=40, pady=10, sticky=tkinter.W)
 
@@ -125,9 +126,13 @@ class ImageHandler:
 
             # TODO handle errors when JSON is formatted incorrectly
 
-    def stop(self):
+    def disconnect(self):
         """
-        stop():  Cleanly exits the application.
+        disconnect():  Cleanly exits the image crop window.
         """
 
-        pass  # TODO clean exit - send images back to server and disconnect
+        # TODO send images back to server
+
+        self.root.destroy()
+        self.lower.deiconify()
+        self.lower.children["connectionConsole"].destroy()
