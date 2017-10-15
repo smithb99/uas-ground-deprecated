@@ -18,7 +18,7 @@ import tkinter
 import tkinter.messagebox
 
 from io import BytesIO
-from PIL import Image
+from PIL.ImageTk import PhotoImage
 
 from gui.main import read_config
 
@@ -93,7 +93,7 @@ class ImageHandler:
             'postman-token': "afe3920c-eb2e-f9e7-9293-660ca9bc801e"
         }
 
-        return Image.open(BytesIO(requests.get(self.hostname + "/api/image/" +
+        return PhotoImage(BytesIO(requests.get(self.hostname + "/api/image/" +
                                                image_id, headers=headers)
                                   .content))
 
