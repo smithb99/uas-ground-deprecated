@@ -12,6 +12,7 @@ Todo:
 """
 
 import json
+import tkinter
 
 from io import BytesIO
 from PIL import Image
@@ -27,7 +28,8 @@ class ImageHandler:
         Handles code for getting, cropping, and posting images.
     """
 
-    def __init__(self, hostname, username, password):
+    def __init__(self, root, hostname, username, password):
+        self.lower = root
         self.hostname = hostname
         self.username = username
         self.password = password
@@ -36,7 +38,8 @@ class ImageHandler:
         """
         image_screen():  Handles GUI code for the image processing screen
         """
-        pass
+        root = tkinter.Toplevel(self.lower)
+        root.title("Crop Image")
 
     def get_image(self):
         """

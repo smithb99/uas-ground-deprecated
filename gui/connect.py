@@ -12,8 +12,10 @@ Todo:
 """
 
 import tkinter
+import tkinter.messagebox
 
 from requests.auth import HTTPDigestAuth
+from .image import ImageHandler
 
 import requests
 
@@ -42,7 +44,7 @@ class ConnectManager:
         """
 
         root = tkinter.Toplevel(self.lower)
-        root.title("Connecting to Server...")
+        root.title("Server Manager Console")
 
         status = tkinter.Text(root)
         response = None
@@ -57,14 +59,21 @@ class ConnectManager:
                                     auth=HTTPDigestAuth(self.username,
                                                         self.password))
         except requests.exceptions.MissingSchema:
-            pass  # TODO error popup
+            tkinter.messagebox.showinfo("Error connecting to server",
+                                        "Failed to connect. Host responded " +
+                                        "with code " + response.status_code)
 
         if response.status_code == 200:
             status.insert(0, self.hostname + " responded with HTTP 200 (OK).")
+            self.lower.withdraw()
+            self.image_screen()
 
     def image_screen(self):
         """
-        image_screen(): Handles code for displaying the image editing screen.
+        image_screen(): Handles code for launching the image editing screen.
         """
 
-        pass
+        image_manager = ImageHandler(self.lower, self.hostname, self.username,
+                                     self.password)
+
+        image_manager.image_screen()
