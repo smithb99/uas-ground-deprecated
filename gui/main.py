@@ -25,7 +25,6 @@ import tkinter
 import tkinter.font
 import tkinter.ttk
 
-import gui.connect
 import gui.metadata
 import gui.server
 

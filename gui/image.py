@@ -20,7 +20,7 @@ import tkinter.messagebox
 from io import BytesIO
 from PIL import Image
 
-from .main import read_config
+from gui.main import read_config
 
 import requests
 
@@ -116,4 +116,4 @@ class ImageHandler:
         stop():  Cleanly exits the application.
         """
 
-        pass  # TODO clean exit - send images back to server and destroy root
+        pass  # TODO clean exit - send images back to server and disconnect

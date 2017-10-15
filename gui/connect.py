@@ -16,7 +16,7 @@ import tkinter
 import tkinter.messagebox
 
 from requests.auth import HTTPDigestAuth
-from .image import ImageHandler
+from gui.image import ImageHandler
 
 import requests
 

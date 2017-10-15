@@ -9,8 +9,8 @@ Author:
 
 import tkinter
 
-from .connect import ConnectManager
-from .main import write_config
+from gui.connect import ConnectManager
+from gui.main import write_config
 
 
 class ServerManager:
@@ -29,14 +29,14 @@ class ServerManager:
 
         self.root = tkinter.Toplevel(self.lower)
 
-    def connect_screen(self, config, hostname, user, password, is_checked):
+    def connect_screen(self, config_path, hostname, user, password, is_checked):
         """
         connect_screen(str, str, str, tkinter.BooleanVar):  Creates the
                                                             connection status
                                                             screen object
 
         Args:
-            config: The path to the configuration file
+            config_path: The path to the configuration file
             hostname: The fully qualified hostname of the target server.
             user: The user on the target server.
             password:  The password for the above user.
@@ -44,19 +44,19 @@ class ServerManager:
         """
 
         if is_checked.get():
-            write_config(self.config, config, "Server", "RememberLogin",
+            write_config(self.config, config_path, "Server", "RememberLogin",
                          "true")
 
         if self.config["Server"].getboolean("RememberLogin"):
-            write_config(self.config, config, "Server", "ServerHostname",
+            write_config(self.config, config_path, "Server", "ServerHostname",
                          hostname)
-            write_config(self.config, config, "Server", "ServerUsername",
+            write_config(self.config, config_path, "Server", "ServerUsername",
                          user)
-            write_config(self.config, config, "Server", "ServerPassword",
+            write_config(self.config, config_path, "Server", "ServerPassword",
                          password)
 
-        connect_manager = ConnectManager(self.lower, config, hostname, user,
-                                         password)
+        connect_manager = ConnectManager(self.lower, self.config, hostname,
+                                         user, password)
 
         connect_manager.connect_screen()
         self.root.destroy()
