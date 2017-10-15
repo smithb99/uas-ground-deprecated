@@ -52,19 +52,27 @@ class ConnectManager:
             'postman-token': "afe3920c-eb2e-f9e7-9293-660ca9bc801e"
         }
 
-        try:
+        try:  # TODO Request returns a 404
             response = requests.get(self.hostname, headers=headers,
                                     auth=HTTPDigestAuth(self.username,
                                                         self.password))
         except requests.exceptions.MissingSchema:
-            tkinter.messagebox.showinfo("Error connecting to server",
-                                        "Failed to connect. Host responded " +
-                                        "with code " + response.status_code)
+            status.insert(0, "Error connecting to server. Failed to connect." +
+                          " MissingSchema")
 
         if response.status_code == 200:
-            status.insert(0, self.hostname + " responded with HTTP 200 (OK).")
+            message = self.hostname + " responded with HTTP 200 (OK). " +\
+                      "Connection successful."
+
             self.lower.withdraw()
             self.image_screen()
+        elif response.status_code != 200:
+            message = self.hostname + " responded with HTTP " +\
+                      str(response.status_code) + "."
+        else:
+            message = "Failed to connect to server."
+
+        status.insert(0, message)
 
     def image_screen(self):
         """

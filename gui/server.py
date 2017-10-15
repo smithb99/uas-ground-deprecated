@@ -27,6 +27,8 @@ class ServerManager:
         self.lower = root
         self.config_path = config_path
 
+        self.root = tkinter.Toplevel(self.lower)
+
     def connect_screen(self, config, hostname, user, password, is_checked):
         """
         connect_screen(str, str, str, tkinter.BooleanVar):  Creates the
@@ -55,24 +57,25 @@ class ServerManager:
 
         connect_manager = ConnectManager(self.lower, config, hostname, user,
                                          password)
+
         connect_manager.connect_screen()
+        self.root.destroy()
 
     def login_screen(self):
         """
         login_screen(): Provides the GUI for handling login credentials.
         """
 
-        root = tkinter.Toplevel(self.lower)
-        root.title("Log In")
+        self.root.title("Log In")
 
-        hostname_label = tkinter.Label(root, text="Hostname: ")
-        hostname_entry = tkinter.Entry(root)
+        hostname_label = tkinter.Label(self.root, text="Hostname: ")
+        hostname_entry = tkinter.Entry(self.root)
 
-        username_label = tkinter.Label(root, text="Username: ")
-        username_entry = tkinter.Entry(root)
+        username_label = tkinter.Label(self.root, text="Username: ")
+        username_entry = tkinter.Entry(self.root)
 
-        password_label = tkinter.Label(root, text="Password: ")
-        password_entry = tkinter.Entry(root, show="*")
+        password_label = tkinter.Label(self.root, text="Password: ")
+        password_entry = tkinter.Entry(self.root, show="*")
 
         if self.__config__.getboolean("Server", "RememberLogin"):
             hostname_entry.insert(0,
@@ -85,13 +88,13 @@ class ServerManager:
                                   self.__config__["Server"]["ServerPassword"])
 
         is_checked = tkinter.BooleanVar()
-        remember_me = tkinter.Checkbutton(root, variable=is_checked,
+        remember_me = tkinter.Checkbutton(self.root, variable=is_checked,
                                           text="Remember me on this computer")
 
         if self.__config__["Server"].getboolean("RememberLogin"):
             remember_me.select()
 
-        submit_button = tkinter.Button(root, text="Log In", command=lambda:
+        submit_button = tkinter.Button(self.root, text="Log In", command=lambda:
                                        self.connect_screen(
                                            self.config_path,
                                            hostname_entry.get(),

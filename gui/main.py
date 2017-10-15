@@ -48,8 +48,11 @@ class Main:
         width = self.root.winfo_screenwidth()
         height = self.root.winfo_screenheight()
 
-        write_config(config_handle, CONFIG_PATH, "GUI", "WindowWidth", width)
-        write_config(config_handle, CONFIG_PATH, "GUI", "WindowHeight", height)
+        write_config(config_handle, CONFIG_PATH, "GUI", "WindowWidth",
+                     str(width))
+
+        write_config(config_handle, CONFIG_PATH, "GUI", "WindowHeight",
+                     str(height))
 
         self.main()
 
