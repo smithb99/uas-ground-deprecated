@@ -8,8 +8,8 @@ Author:
     Braedon Smith <bhsmith1999@gmail.com>
 
 Todo:
-    109: Handle error when JSON is formatted incorrectly
-    116: Cleanly exit by sending unprocessed images back to the server and
+    126: Handle error when JSON is formatted incorrectly
+    133: Cleanly exit by sending unprocessed images back to the server and
          destroying root
 """
 
@@ -40,29 +40,34 @@ class ImageHandler:
         self.username = username
         self.password = password
 
+        self.root = tkinter.Toplevel(self.lower)
+        self.canvas = tkinter.Canvas(self.root)
+
     def image_screen(self):
         """
         image_screen():  Handles GUI code for the image processing screen
         """
-        root = tkinter.Toplevel(self.lower)
-        root.title("Crop Image")
 
-        pop_button = tkinter.Button(root, text="New Image")
-        submit_button = tkinter.Button(root, text="Submit Image")
-        exit_button = tkinter.Button(root, text="Exit", command=self.stop())
+        self.root.title("Crop Image")
 
-        image_canvas = tkinter.Canvas(root)
+        pop_button = tkinter.Button(self.root, text="New Image")
+        submit_button = tkinter.Button(self.root, text="Submit Image")
+        exit_button = tkinter.Button(self.root, text="Exit",
+                                     command=self.stop())
 
-        root.geometry("{}x{}".format(
+        self.root.geometry("{}x{}".format(
             read_config(self.config, "GUI", "WindowWidth"),
             read_config(self.config, "GUI", "WindowHeight"))
         )
 
-        pop_button.grid(row=0, column=0)
-        submit_button.grid(row=1, column=0)
-        exit_button.grid(row=2, column=0)
+        # root.grid_columnconfigure(1, minsize=) TODO minimum size - resolution
 
-        image_canvas.grid(row=0, column=1)
+        pop_button.grid(row=0, column=0, padx=40, pady=10, sticky=tkinter.W,
+                        command=self.pop)
+        submit_button.grid(row=1, column=0, padx=40, pady=10, sticky=tkinter.W)
+        exit_button.grid(row=2, column=0, padx=40, pady=10, sticky=tkinter.W)
+
+        self.canvas.grid_bbox(column=1, row=0, col2=1, row2=4)
 
     def get_image(self):
         """
@@ -91,6 +96,15 @@ class ImageHandler:
         return Image.open(BytesIO(requests.get(self.hostname + "/api/image/" +
                                                image_id, headers=headers)
                                   .content))
+
+    def pop(self):
+        """
+        pop(): Draws the popped image
+        """
+
+        image = self.get_image()
+
+        self.canvas.create_image((0, 0), image=image)
 
     def post_image(self, images):
         """
