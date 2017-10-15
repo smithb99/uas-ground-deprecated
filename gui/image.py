@@ -8,7 +8,9 @@ Author:
     Braedon Smith <bhsmith1999@gmail.com>
 
 Todo:
-    108: Handle error when JSON is formatted incorrectly
+    109: Handle error when JSON is formatted incorrectly
+    116: Cleanly exit by sending unprocessed images back to the server and
+         destroying root
 """
 
 import json
@@ -17,6 +19,8 @@ import tkinter.messagebox
 
 from io import BytesIO
 from PIL import Image
+
+from .main import read_config
 
 import requests
 
@@ -43,15 +47,15 @@ class ImageHandler:
         root = tkinter.Toplevel(self.lower)
         root.title("Crop Image")
 
-        pop_button = tkinter.Button(root)
-        submit_button = tkinter.Button(root)
-        exit_button = tkinter.Button(root, command=self.stop())
+        pop_button = tkinter.Button(root, text="New Image")
+        submit_button = tkinter.Button(root, text="Submit Image")
+        exit_button = tkinter.Button(root, text="Exit", command=self.stop())
 
         image_canvas = tkinter.Canvas(root)
 
         root.geometry("{}x{}".format(
-            str(self.config.getint("GUI", "WindowWidth")),
-            str(self.config.getint("GUI", "WindowHeight")))
+            read_config(self.config, "GUI", "WindowWidth"),
+            read_config(self.config, "GUI", "WindowHeight"))
         )
 
         pop_button.grid(row=0, column=0)
@@ -111,3 +115,5 @@ class ImageHandler:
         """
         stop():  Cleanly exits the application.
         """
+
+        pass  # TODO clean exit - send images back to server and destroy root

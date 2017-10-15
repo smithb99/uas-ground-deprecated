@@ -23,7 +23,7 @@ class ServerManager:
     """
 
     def __init__(self, root, config, config_path):
-        self.__config__ = config
+        self.config = config
         self.lower = root
         self.config_path = config_path
 
@@ -44,15 +44,15 @@ class ServerManager:
         """
 
         if is_checked.get():
-            write_config(self.__config__, config, "Server", "RememberLogin",
+            write_config(self.config, config, "Server", "RememberLogin",
                          "true")
 
-        if self.__config__["Server"].getboolean("RememberLogin"):
-            write_config(self.__config__, config, "Server", "ServerHostname",
+        if self.config["Server"].getboolean("RememberLogin"):
+            write_config(self.config, config, "Server", "ServerHostname",
                          hostname)
-            write_config(self.__config__, config, "Server", "ServerUsername",
+            write_config(self.config, config, "Server", "ServerUsername",
                          user)
-            write_config(self.__config__, config, "Server", "ServerPassword",
+            write_config(self.config, config, "Server", "ServerPassword",
                          password)
 
         connect_manager = ConnectManager(self.lower, config, hostname, user,
@@ -77,21 +77,21 @@ class ServerManager:
         password_label = tkinter.Label(self.root, text="Password: ")
         password_entry = tkinter.Entry(self.root, show="*")
 
-        if self.__config__.getboolean("Server", "RememberLogin"):
+        if self.config.getboolean("Server", "RememberLogin"):
             hostname_entry.insert(0,
-                                  self.__config__["Server"]["ServerHostname"])
+                                  self.config["Server"]["ServerHostname"])
 
             username_entry.insert(0,
-                                  self.__config__["Server"]["ServerUsername"])
+                                  self.config["Server"]["ServerUsername"])
 
             password_entry.insert(0,
-                                  self.__config__["Server"]["ServerPassword"])
+                                  self.config["Server"]["ServerPassword"])
 
         is_checked = tkinter.BooleanVar()
         remember_me = tkinter.Checkbutton(self.root, variable=is_checked,
                                           text="Remember me on this computer")
 
-        if self.__config__["Server"].getboolean("RememberLogin"):
+        if self.config["Server"].getboolean("RememberLogin"):
             remember_me.select()
 
         submit_button = tkinter.Button(self.root, text="Log In", command=lambda:
