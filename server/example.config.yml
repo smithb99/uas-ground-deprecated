@@ -4,3 +4,7 @@ mysql:
     password: password
     db: database
     port: "3306"
+judge:
+    user: username
+    password: password
+    baseUrl: http://url.of.the.judging.server
