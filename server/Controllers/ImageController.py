@@ -14,6 +14,7 @@ app = db.app
 
 UPLOAD_FOLDER = './images'
 ALLOWED_EXTENSIONS = set(['jpg', 'jpeg'])
+orientations = ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw']
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -87,7 +88,8 @@ def post_processed_image(request, token):
         data = request.form
         if(data is None):
             return 'Request was empty', 400
-        #todo capture confirmed correctly
+        if data['orientation'] not in orientations:
+            return "Unknown orientation " + data['orientation'] + "; known orientations ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw']", 400
         f = request.files['image']
         if f.filename == '':
             return 'File name was invalid', 400
@@ -100,7 +102,7 @@ def post_processed_image(request, token):
                                 background_color=data['background_color'], alphanumeric=data['alphanumeric'], alphanumeric_color=data['alphanumeric_color'], 
                                 orientation=data['orientation'], original_id=data['original_id'])
                 db.session.add(cropped)
-                code = JudgeController.post_odlc(token)
+                code = JudgeController.post_odlc(token, cropped)
                 if code == 201:
                     return "Successfully submitted picture to judging server.", 200
                 if code == 403:

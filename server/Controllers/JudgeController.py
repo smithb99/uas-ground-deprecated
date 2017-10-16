@@ -2,6 +2,7 @@ import requests
 import urllib
 import json
 import yaml
+from Models.Cropped import Cropped
 
 with open("config.yml", 'r') as ymlfile:
     cfg = yaml.load(ymlfile)
@@ -28,21 +29,21 @@ def authenticate():
         print(e)
         return None
 
-def post_odlc(sessionid):
-    url = BASE_URL + '/api/odlcs'
-
-    payload = { "type": "standard", "latitude": 38.1478, "longitude": -76.4275, "orientation": "n", "shape": "star", "background_color": "orange", "alphanumeric": "C", "alphanumeric_color": "black" }
-    cookie = {'sessionid': sessionid}
-    headers = {
-        'content-type': "application/json",
-        }
-
+def post_odlc(sessionid, image):
     try:
+        url = BASE_URL + '/api/odlcs'
+        payload = { "type": "standard", "latitude": 0, "longitude": 0, "orientation": image.orientation, "shape": image.shape, "background_color": image.background_color, "alphanumeric": image.alphanumeric, "alphanumeric_color": image.alphanumeric_color }
+        cookie = {'sessionid': sessionid}
+        headers = {
+            'content-type': "application/json",
+            }
+
         response = requests.request("POST", url, data=json.dumps(payload), headers=headers, cookies=cookie)
         return response.status_code
 
     except requests.exceptions.RequestException as e:
         print(e)
         return 400
+
 
 
