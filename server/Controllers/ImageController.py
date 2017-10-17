@@ -104,7 +104,7 @@ def post_processed_image(request, token):
                 db.session.add(cropped)
                 code = JudgeController.post_odlc(token, cropped)
                 if code == 201:
-                    return "Successfully submitted picture to judging server.", 200
+                    return "Successfully submitted picture to judging server.", 201
                 if code == 403:
                     return "Judging server token is expired. Reauthenticate", 401
                 else:
