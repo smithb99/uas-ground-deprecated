@@ -8,11 +8,13 @@ import uuid
 from Database.initialize import db
 from Models.Cropped import Cropped
 from Models.Image import Image
+from Controllers import JudgeController
 
 app = db.app
 
 UPLOAD_FOLDER = './images'
 ALLOWED_EXTENSIONS = set(['jpg', 'jpeg'])
+orientations = ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw']
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -77,7 +79,7 @@ def post_raw_image(request):
         return "Unknown issue. Check logs", 400
 
 
-def post_processed_image(request):
+def post_processed_image(request, token):
     try:
         if 'image' not in request.files:
             return 'No image was included in request', 400
@@ -86,7 +88,8 @@ def post_processed_image(request):
         data = request.form
         if(data is None):
             return 'Request was empty', 400
-        #todo capture confirmed correctly
+        if data['orientation'] not in orientations:
+            return "Unknown orientation " + data['orientation'] + "; known orientations ['n', 'ne', 'e', 'se', 's', 'sw', 'w', 'nw']", 400
         f = request.files['image']
         if f.filename == '':
             return 'File name was invalid', 400
@@ -99,7 +102,14 @@ def post_processed_image(request):
                                 background_color=data['background_color'], alphanumeric=data['alphanumeric'], alphanumeric_color=data['alphanumeric_color'], 
                                 orientation=data['orientation'], original_id=data['original_id'])
                 db.session.add(cropped)
-                #todo: submit image for judging
+                code = JudgeController.post_odlc(token, cropped)
+                if code == 201:
+                    return "Successfully submitted picture to judging server.", 201
+                if code == 403:
+                    return "Judging server token is expired. Reauthenticate", 401
+                else:
+                    return "Issue submitting picture for judging, check logs", 400
+
             else:
                 cropped = Cropped(image_name=filename, has_odlc=0, original_id=data['original_id'])
                 db.session.add(cropped)

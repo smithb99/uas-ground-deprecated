@@ -1,8 +1,24 @@
 from flask import request
 
 from Database.initialize import app
-from Controllers import ImageController
+from Controllers import ImageController, JudgeController
 
+app.config['judge_token'] = JudgeController.authenticate()
+
+# GET /api
+@app.route('/api')
+def api_get_status():
+    return "Status: OK", 200
+
+#GET /api/judge/token
+@app.route('/api/judge/token')
+def api_get_judge_token():
+    token = JudgeController.authenticate()
+    if token is not None:
+        app.config['judge_token'] = token
+        return "", 204
+    else:
+        return "Issue retrieving new token", 400
 
 # GET /api/image
 @app.route('/api/image')
@@ -22,4 +38,6 @@ def api_post_raw_image():
 # POST /api/image/cropped
 @app.route('/api/image/cropped', methods = { 'POST' })
 def api_post_processed_image():
-    return ImageController.post_processed_image(request)
+    token = app.config['judge_token']
+    return ImageController.post_processed_image(request, token)
+
