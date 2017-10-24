@@ -18,6 +18,7 @@ import tkinter
 import tkinter.messagebox
 
 from io import BytesIO
+from json.decoder import JSONDecodeError
 from PIL.ImageTk import PhotoImage
 
 from gui.main import read_config
@@ -33,15 +34,16 @@ class ImageHandler:
         Handles code for getting, cropping, and posting images.
     """
 
-    def __init__(self, root, config, hostname, username, password):
+    def __init__(self, root, config, hostname):
         self.lower = root
         self.config = config
         self.hostname = hostname
-        self.username = username
-        self.password = password
 
         self.root = tkinter.Toplevel(self.lower, name="imageHandler")
         self.canvas = tkinter.Canvas(self.root)
+
+    def crop_image(self):
+        pass
 
     def image_screen(self):
         """
@@ -51,11 +53,11 @@ class ImageHandler:
         self.root.title("Image Cropper")
 
         pop_button = tkinter.Button(self.root, text="New Image",
-                                    command=self.pop)
+                                    command=lambda: self.draw_image())
 
         submit_button = tkinter.Button(self.root, text="Submit Image")
         exit_button = tkinter.Button(self.root, text="Disconnect",
-                                     command=self.disconnect)
+                                     command=lambda: self.disconnect())
 
         self.root.geometry("{}x{}".format(
             read_config(self.config, "GUI", "WindowWidth"),
@@ -77,39 +79,52 @@ class ImageHandler:
         Returns: the image from the server
         """
 
-        response = requests.get(self.hostname + "/api/image",
-                                auth=(self.username, self.password))
+        response = requests.get(self.hostname + "/api/image")
 
-        response_json = json.loads(response.json())
+        try:
+            response_json = json.loads(response.json())
+        except JSONDecodeError:
+            return None
 
-        if response.status_code != 200:
+        if response.status_code not in (200, 204):
             tkinter.messagebox.showinfo("Error connecting to server",
-                                        "Failed to connect. Host responded " +
-                                        "with code " + response.status_code)
+                                        "Failed to connect. Host responded "
+                                        + "with code " +
+                                        str(response.status_code))
 
-        image_id = response_json["id"]
+            return None
+
+        try:
+            image_id = response_json["id"]
+        except KeyError:
+            return None
 
         headers = {
             'cache-control': "no-cache",
             'postman-token': "afe3920c-eb2e-f9e7-9293-660ca9bc801e"
         }
 
-        return PhotoImage(BytesIO(requests.get(self.hostname + "/api/image/" +
-                                               image_id, headers=headers)
+        return PhotoImage(BytesIO(requests.get(self.hostname + "/api/image/"
+                                               + image_id, headers=headers)
                                   .content))
 
-    def pop(self):
+    def draw_image(self):
         """
-        pop(): Draws the popped image
+        draw_image(): Draws the popped image
         """
 
         image = self.get_image()
 
-        self.canvas.create_image((0, 0), image=image)
+        if image is not None:
+            self.canvas.create_image((0, 0), image=image)
+        else:
+            tkinter.messagebox.showerror("No image found", "Server did not " +
+                                         "return an image. Please wait for a " +
+                                         "new one to be taken.")
 
     def post_image(self, images):
         """
-        post_image(str, str, str, PIL.Image{}): Posts an array of cropped images
+        post_image(str, str, str, PIL.Image{}): Posts a series of cropped images
                                                 to the server.
 
         Args:
@@ -121,8 +136,7 @@ class ImageHandler:
         for image in images:
             image_json = json.loads(images[image])
 
-            requests.post(self.hostname, auth=(self.username, self.password),
-                          json=image_json, data=image)
+            requests.post(self.hostname, json=image_json, data=image)
 
             # TODO handle errors when JSON is formatted incorrectly
 
@@ -131,7 +145,7 @@ class ImageHandler:
         disconnect():  Cleanly exits the image crop window.
         """
 
-        # TODO send images back to server
+        # TODO log any unprocessed images
 
         self.root.destroy()
         self.lower.deiconify()
